@@ -12,24 +12,24 @@ public class EnemyMove : MonoBehaviour
     // List<GameObject>でパスのオブジェクトを指定 -> インデックスを別途用意してそこめがけてトゥイーン -> 到着後次のオブジェクトの方向を向くトゥイーン & インデックス+1
     // -> リストの長さのインデックスまで来たらインデックスの変数を今度は-1ずつしていく
     // -> インデックスの変数の他に、リストの長さに到達したらプラマイを変換するint型変数が必要（Index = Index*PlusMinusInt）
-    [SerializeField] private List<GameObject> _targets;
+    [SerializeField] protected List<GameObject> _targets;
 
-    private int Index;
-    private int IndexChanger;
+    protected int Index;
+    protected int IndexChanger;
 
-    private float blocks;
+    protected float blocks;
 
-    private bool isMove;
-    private bool isRotate;
-    private bool isCroutine;
-    private bool dontMove;
+    protected bool isMove;
+    protected bool isRotate;
+    protected bool isCroutine;
+    protected bool dontMove;
 
-    private GameObject nextTarget;
+    protected GameObject nextTarget;
     
     public float ROTATE_SPEED = 1.5f;
     public float SPEED_PER_BLOCK = 0.5f;
     // Start is called before the first frame update
-    void Start()
+    protected void Start()
     {
         Index = 1; // 0はエネミーが最初からいる地点なので1から始める
         IndexChanger = 1;
@@ -51,7 +51,7 @@ public class EnemyMove : MonoBehaviour
     }
 
     // Update is called once per frame
-    void Update()
+    protected virtual void Update()
     {
         if (_targets.Count > 1)
         {
@@ -70,12 +70,12 @@ public class EnemyMove : MonoBehaviour
             {
                 isCroutine = true;
                 //  その場で回転のみする関数
-                StartCoroutine(Rotate180Degree());
+                StartCoroutine(RotateDegree());
             }
         }
     }
 
-    private void ChangeIndexAndRotate()
+    protected virtual void ChangeIndexAndRotate()
     {
         isRotate = true;
         if (Index + 1 == _targets.Count && IndexChanger==1)
@@ -92,7 +92,7 @@ public class EnemyMove : MonoBehaviour
         transform.DOLookAt(_targets[Index].transform.position,ROTATE_SPEED,axisConstraint:AxisConstraint.Y).SetEase(Ease.Linear).OnComplete(() => {setBoolsFalse();});
     }
 
-    private float CalcBlocks(GameObject target)
+    protected float CalcBlocks(GameObject target)
     {
         if (transform.eulerAngles.y == 90 || transform.eulerAngles.y == 270)
         {
@@ -109,7 +109,7 @@ public class EnemyMove : MonoBehaviour
     }
 
     // DOTwennのコルーチンで処理を行っているので別途関数化
-    private void setBoolsFalse()
+    protected void setBoolsFalse()
     {
         isRotate = false;
         isMove = false;
@@ -125,7 +125,7 @@ public class EnemyMove : MonoBehaviour
         return isRotate;
     }
 
-    private void setNextTarget()
+    protected void setNextTarget()
     {
         nextTarget = _targets[Index];
     }
@@ -139,7 +139,7 @@ public class EnemyMove : MonoBehaviour
         return dontMove;
     }
 
-    IEnumerator Rotate180Degree()
+    protected virtual IEnumerator RotateDegree()
     {
         isRotate = true;
         for (int turn=0; turn<180; turn++)

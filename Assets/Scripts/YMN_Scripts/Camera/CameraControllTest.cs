@@ -4,10 +4,11 @@ using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
 using System.Linq;
+using UnityEngine.UI;
 
 public class CameraControllTest : MonoBehaviour
 {
-    // [SerializeField] GameObject Player;
+    [SerializeField] List<Material> FadeMaterials;
     // 右回転
     [SerializeField] private List<GameObject> _targets03;
     [SerializeField] private List<GameObject> _targets32;
@@ -41,6 +42,12 @@ public class CameraControllTest : MonoBehaviour
         coroutineBool = false;
         FrontRear = true;
         FrontCameraPosInt = CameraPosInt;
+        
+        foreach (var material in FadeMaterials)
+        {
+            BlendModeUtils.SetBlendMode(material, BlendModeUtils.Mode.Opaque);
+            material.color = new Color32(255, 255, 255, 255);
+        }
     }
 
 
@@ -66,7 +73,7 @@ public class CameraControllTest : MonoBehaviour
                 // Debug.Log(CameraPosInt);
                 // Debug.Log(FrontCameraPosInt);
                 DoMove(_path, "right");
-                FrontRear = setFrontRearBool(CameraPosInt);
+                
             }
         }
 
@@ -79,7 +86,6 @@ public class CameraControllTest : MonoBehaviour
                 List<GameObject> _path = setTargetCameraPosList(CameraPosInt, "left");
                 CameraPosInt = setCameraPosInt(CameraPosInt, "left");
                 DoMove(_path, "left");
-                FrontRear = setFrontRearBool(CameraPosInt);
             }
         }
     }
@@ -95,7 +101,29 @@ public class CameraControllTest : MonoBehaviour
             return false;
         }
     }
-
+    
+    private void SetMaterialFade(List<Material> materials, int cameraPos)
+    {
+        // カメラが背後に有る時は背後のブロックを透かす
+        if (cameraPos == 2)
+        {
+            foreach (var material in materials)
+            {
+                // Fadeモードに変更
+                BlendModeUtils.SetBlendMode(material, BlendModeUtils.Mode.Fade);
+                // 透明度をいじる
+                material.color = new Color32(255, 255, 255, 150);
+            }
+        }
+        else
+        {
+            foreach (var material in materials)
+            {
+                BlendModeUtils.SetBlendMode(material, BlendModeUtils.Mode.Opaque);
+                material.color = new Color32(255, 255, 255, 255);
+            }
+        }
+    }
 
     // カメラの位置でインデックスを決定する
     private int setCameraPosInt(int currentPos, string direction)
@@ -167,7 +195,12 @@ public class CameraControllTest : MonoBehaviour
             transform.DOLocalMoveY(TargetPositionY, 0.5f).SetEase(Ease.InQuart).SetDelay(1.25f);
         }
 
-        transform.DOLocalRotate(tmp,0.5f).SetEase(Ease.InQuart).SetDelay(1.25f).OnKill(setCoroutineBoolFALSE);
+        transform.DOLocalRotate(tmp,0.5f).SetEase(Ease.InQuart).SetDelay(1.25f).OnKill(() =>
+        {
+            FrontRear = setFrontRearBool(CameraPosInt);
+            SetMaterialFade(FadeMaterials, CameraPosInt);
+            setCoroutineBoolFALSE();
+        });
     }
 
     private void setCoroutineBoolFALSE()
@@ -188,5 +221,12 @@ public class CameraControllTest : MonoBehaviour
     public int getCameraPosInt()
     {
         return CameraPosInt;
+    }
+    
+    public enum Mode {
+        Opaque,
+        Cutout,
+        Fade,
+        Transparent,
     }
 }

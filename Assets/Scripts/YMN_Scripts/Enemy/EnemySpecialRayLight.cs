@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening; 
 
-public class EnemyRayLight : MonoBehaviour
+public class EnemySpecialRayLight : MonoBehaviour
 {
     [SerializeField] GameObject RayShooter;
-    private EnemyMove _EnemyMove;
+    private EnemySpecialMove _EnemyMove;
 
     private Vector3 direction;
 
@@ -18,14 +18,14 @@ public class EnemyRayLight : MonoBehaviour
     {
         direction = Vector3.right;
         maxDistance = 0;
-        _EnemyMove = this.gameObject.GetComponent<EnemyMove>();
+        _EnemyMove = this.gameObject.GetComponent<EnemySpecialMove>();
     }
 
     // Update is called once per frame
     void Update()
     {
-        setDirection();
-        setEyeSight();
+        setDirectionAndEyeSight();
+        
         
         Ray ray = new Ray(RayShooter.transform.position, direction);
         RaycastHit hit;
@@ -37,34 +37,27 @@ public class EnemyRayLight : MonoBehaviour
         }
     }
 
-    private void setEyeSight()
+    private void setDirectionAndEyeSight()
     {
-        if (_EnemyMove.getIsRotate())
-        {
-            maxDistance = 0;
-        }
-        else 
-        {
-            maxDistance = EYE_SIGHT;
-        }
-    }
-
-    private void setDirection()
-    {
+        maxDistance = 0;
         if (this.transform.eulerAngles.y <= 1 || this.transform.eulerAngles.y >= 359)
         {
+            maxDistance = EYE_SIGHT;
             direction = Vector3.forward;
         } 
         else if (this.transform.eulerAngles.y <= 91 && this.transform.eulerAngles.y >= 89)
         {
+            maxDistance = EYE_SIGHT;
             direction = Vector3.right;
         } 
         else if (this.transform.eulerAngles.y <= 181 && this.transform.eulerAngles.y >= 179)
         {
+            maxDistance = EYE_SIGHT;
             direction = Vector3.back;
         } 
         else if (this.transform.eulerAngles.y <= 271 && this.transform.eulerAngles.y >= 269)
         {
+            maxDistance = EYE_SIGHT;
             direction = Vector3.left;
         }
     }
